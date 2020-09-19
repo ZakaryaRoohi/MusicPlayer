@@ -1,14 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-   >
+    android:orientation="vertical"
+    >
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_beat_box"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="445dp"
+        tools:context=".controller.fragment.BeatBoxFragment"
+        tools:listitem="@layout/music_items"></androidx.recyclerview.widget.RecyclerView>
+<SeekBar
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:id="@+id/music_seek_bar"
+    android:layout_marginRight="8dp"
+    android:layout_marginLeft="8dp"
+    />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:gravity="center">
 
-</FrameLayout>
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:id="@+id/image_button_previous"
+            android:src="@drawable/ic_skip_previous"
+            android:text=""/>
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:id="@+id/button_seek_backward"
+            android:src="@drawable/ic_fast_rewind"
+
+            />
+        <Button
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:id="@+id/button_pause"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:text="pause"/>
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:id="@+id/button_seek_forward"
+            android:src="@drawable/ic_fast_forward"/>
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:id="@+id/image_button_next"
+            android:src="@drawable/ic_skip_next"
+
+            android:text=""/>
+    </LinearLayout>
+
+
+</LinearLayout>

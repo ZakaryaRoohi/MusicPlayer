@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     String[] titles = {"Song", "Album", "Artist"};
     private FragmentStateAdapter mPagerAdapter;
     private ViewPager2 mViewPager2;
-    ArrayList<MusicFiles> mMusicFiles;
+    public static ArrayList<MusicFiles> mMusicFiles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 //
                 Toast.makeText(this, "Permission Granted !", Toast.LENGTH_SHORT).show();
                 mMusicFiles=getAllAudio(this);
+
             }
             else {
                 ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}
@@ -127,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         return super.onOptionsItemSelected(item);
     }
+
     public static ArrayList<MusicFiles> getAllAudio(Context context){
         ArrayList<MusicFiles> tempAudioList = new ArrayList<>();
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI ;
@@ -147,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
                 String path = cursor.getString(3);
                 String artist = cursor.getString(4);
                 Log.e("path" ,path);
-                Toast.makeText(context, "path" + path, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(context, "path" + path, Toast.LENGTH_SHORT).show();
                 MusicFiles musicFiles = new MusicFiles(path,title,artist,album,duration);
                 tempAudioList.add(musicFiles);
             }
