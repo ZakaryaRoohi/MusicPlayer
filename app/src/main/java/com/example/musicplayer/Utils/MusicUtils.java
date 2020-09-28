@@ -23,5 +23,17 @@ public class MusicUtils {
             e.printStackTrace();
         }
     }
+    public static void playAudio(MediaPlayer mediaPlayer,String data) {
+        try {
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(data);
+            mediaPlayer.prepare();
+            mediaPlayer.setVolume(1f, 1f);
+            mediaPlayer.setLooping(false);
+            mediaPlayer.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }

@@ -208,9 +208,10 @@ public class SongListFragment extends Fragment {
                         nextMusic = mMusicFiles.get(currentMusicIndex + 1);
 
                     mMediaPlayer.stop();
-                    mMediaPlayer = new MediaPlayer();
-//                    MusicUtils.playAssetSound(mMediaPlayer, getActivity(), nextMusic.getPath());
-                    mMediaPlayer.start();
+//                    mMediaPlayer = new MediaPlayer();
+                    MusicUtils.playAudio(mMediaPlayer,nextMusic.getData());
+                    mCurrentMusicPlayed = nextMusic;
+//                    mMediaPlayer.start();
                     mButtonPlay.setText("pause");
                 }
             }
@@ -229,9 +230,10 @@ public class SongListFragment extends Fragment {
                         nextMusic = mMusicFiles.get(currentMusicIndex - 1);
 
                     mMediaPlayer.stop();
-                    mMediaPlayer = new MediaPlayer();
-//                    MusicUtils.playAssetSound(mMediaPlayer, getActivity(), nextMusic.getPath());
-                    mMediaPlayer.start();
+//                    mMediaPlayer = new MediaPlayer();
+                    MusicUtils.playAudio(mMediaPlayer,nextMusic.getData());
+//                    mMediaPlayer.start();
+                    mCurrentMusicPlayed = nextMusic;
                     mButtonPlay.setText("pause");
                 }
             }
@@ -262,8 +264,8 @@ public class SongListFragment extends Fragment {
                     Toast.makeText(getActivity(), "path: " + mMusic.getData().substring(0,i)+"/"+mMusic.getTitle()+".mp3", Toast.LENGTH_LONG).show();
                     mMediaPlayer.stop();
                     mMediaPlayer = new MediaPlayer();
-                    MusicUtils.playAssetSound(mMediaPlayer, getActivity(),mMusic.getData().substring(0,i)+"/"+mMusic.getTitle()+".mp3");
-                    mMediaPlayer.start();
+                   MusicUtils.playAudio(mMediaPlayer,mMusic.getData());
+//                    mMediaPlayer.start();
                     mButtonPlay.setText("pause");
                     mCurrentMusicPlayed = mMusic;
 

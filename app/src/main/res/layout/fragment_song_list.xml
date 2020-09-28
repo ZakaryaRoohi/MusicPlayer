@@ -5,22 +5,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/gradient_bg"
     android:orientation="vertical"
     >
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_beat_box"
         android:layout_width="match_parent"
-        android:layout_height="445dp"
+        android:layout_height="541dp"
         tools:context=".controller.fragment.BeatBoxFragment"
         tools:listitem="@layout/music_items"></androidx.recyclerview.widget.RecyclerView>
-<SeekBar
-    android:layout_width="match_parent"
-    android:layout_height="40dp"
-    android:id="@+id/music_seek_bar"
-    android:layout_marginRight="8dp"
-    android:layout_marginLeft="8dp"
-    />
+
+    <SeekBar
+        android:id="@+id/music_seek_bar"
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="40dp"
