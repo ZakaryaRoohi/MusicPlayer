@@ -1,9 +1,10 @@
 package com.example.musicplayer.controller.fragment;
 
+import android.content.res.AssetFileDescriptor;
+import android.graphics.BitmapFactory;
 import android.media.AudioAttributes;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,6 +30,8 @@ import com.example.musicplayer.Utils.MusicUtils;
 import com.example.musicplayer.controller.activity.MainActivity;
 import com.example.musicplayer.model.MusicFiles;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 public class SongListFragment extends Fragment {
@@ -206,7 +209,7 @@ public class SongListFragment extends Fragment {
 
                     mMediaPlayer.stop();
                     mMediaPlayer = new MediaPlayer();
-                    MusicUtils.playAssetSound(mMediaPlayer, getActivity(), nextMusic.getPath());
+//                    MusicUtils.playAssetSound(mMediaPlayer, getActivity(), nextMusic.getPath());
                     mMediaPlayer.start();
                     mButtonPlay.setText("pause");
                 }
@@ -227,7 +230,7 @@ public class SongListFragment extends Fragment {
 
                     mMediaPlayer.stop();
                     mMediaPlayer = new MediaPlayer();
-                    MusicUtils.playAssetSound(mMediaPlayer, getActivity(), nextMusic.getPath());
+//                    MusicUtils.playAssetSound(mMediaPlayer, getActivity(), nextMusic.getPath());
                     mMediaPlayer.start();
                     mButtonPlay.setText("pause");
                 }
@@ -237,7 +240,7 @@ public class SongListFragment extends Fragment {
 
     private void initUI() {
 
-        SoundAdapter adapter = new SoundAdapter(mMusicFiles);
+        MusicAdapter adapter = new MusicAdapter(mMusicFiles);
         mRecyclerView.setAdapter(adapter);
     }
 
@@ -255,10 +258,11 @@ public class SongListFragment extends Fragment {
                 @RequiresApi(api = Build.VERSION_CODES.N)
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(getActivity(), "path: " + mMusic.getPath(), Toast.LENGTH_SHORT).show();
+                    int i = mMusic.getData().indexOf('-');
+                    Toast.makeText(getActivity(), "path: " + mMusic.getData().substring(0,i)+"/"+mMusic.getTitle()+".mp3", Toast.LENGTH_LONG).show();
                     mMediaPlayer.stop();
                     mMediaPlayer = new MediaPlayer();
-                    MusicUtils.playAssetSound(mMediaPlayer, getActivity(), mMusic.getPath());
+                    MusicUtils.playAssetSound(mMediaPlayer, getActivity(),mMusic.getData().substring(0,i)+"/"+mMusic.getTitle()+".mp3");
                     mMediaPlayer.start();
                     mButtonPlay.setText("pause");
                     mCurrentMusicPlayed = mMusic;
@@ -266,30 +270,37 @@ public class SongListFragment extends Fragment {
                 }
             });
         }
+//
 
-        public void bindSound(MusicFiles music) {
+        public void bindMusic(MusicFiles music) {
             mMusic = music;
             mTextViewTitle.setText(mMusic.getTitle());
-            byte[] image = getAlbumArt(music.getPath());
-//            if (image!=null){
-//                Gide.with()
-//            }
+
+//            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+//            retriever.setDataSource(mMusic.getData());
+//            byte[] art = retriever.getEmbeddedPicture();
+            byte[] art = getAlbumArt(mMusic.getData());
+            if (art != null) {
+                mImageViewImageMusic.setImageBitmap(BitmapFactory.decodeByteArray(art, 0, art.length));
+            } else {
+                mImageViewImageMusic.setImageResource(R.drawable.song_bytes_image);
+            }
 
         }
-        private byte[] getAlbumArt(String uri){
+        private byte[] getAlbumArt(String data){
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-            retriever.setDataSource(uri);
+            retriever.setDataSource(data);
             byte[] art = retriever.getEmbeddedPicture();
             retriever.release();
             return art;
             }
     }
 
-    private class SoundAdapter extends RecyclerView.Adapter<MusicHolder> {
+    private class MusicAdapter extends RecyclerView.Adapter<MusicHolder> {
 
         private List<MusicFiles> mMusics;
 
-        public SoundAdapter(List<MusicFiles> musics) {
+        public MusicAdapter(List<MusicFiles> musics) {
             mMusics = musics;
         }
 
@@ -305,7 +316,7 @@ public class SongListFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull MusicHolder holder, int position) {
             MusicFiles music = mMusics.get(position);
-            holder.bindSound(music);
+            holder.bindMusic(music);
         }
 
         @Override
