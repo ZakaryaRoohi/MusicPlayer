@@ -21,6 +21,7 @@ import com.example.musicplayer.R;
 import com.example.musicplayer.Utils.MusicUtils;
 import com.example.musicplayer.controller.fragment.SongListFragment;
 import com.example.musicplayer.model.MusicFiles;
+import com.example.musicplayer.repository.MusicRepository;
 import com.example.musicplayer.repository.PlayerRepository;
 
 import java.io.Serializable;
@@ -65,7 +66,8 @@ public class PlayerActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         mPosition = intent.getIntExtra(EXTRA_POSITION, -1);
-        mMusicFilesList = MainActivity.getAllAudio(this);
+        mMusicFilesList =MusicRepository.getInstance(getApplicationContext()).getAllAudio();
+
         if (mPosition >= 0)
             mMusic = mMusicFilesList.get(mPosition);
         findViews();
@@ -73,7 +75,7 @@ public class PlayerActivity extends AppCompatActivity {
 
 
         mHandler = new Handler();
-        mMusicFilesList = MainActivity.mMusicFiles;
+//        mMusicFilesList = MainActivity.mMusicFiles;
 
 //        mMediaPlayer = new MediaPlayer();
 //        AudioAttributes audioAttributes = new AudioAttributes.Builder()
@@ -227,13 +229,17 @@ public class PlayerActivity extends AppCompatActivity {
                         prevMusic = mMusicFilesList.get(currentMusicIndex - 1);
 
                     mMediaPlayer.stop();
-//                    mMediaPlayer = new MediaPlayer();
                     MusicUtils.playAudio(mMediaPlayer, prevMusic.getData());
-//                    mMediaPlayer.start();
                     mCurrentMusicPlayed = prevMusic;
                     mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
                     initViews(prevMusic);
                 }
+            }
+        });
+        mBtnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
             }
         });
     }

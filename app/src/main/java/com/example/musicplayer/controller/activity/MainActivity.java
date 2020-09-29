@@ -28,6 +28,7 @@ import com.example.musicplayer.controller.fragment.AlbumListFragment;
 import com.example.musicplayer.controller.fragment.ArtistListFragment;
 import com.example.musicplayer.controller.fragment.SongListFragment;
 import com.example.musicplayer.model.MusicFiles;
+import com.example.musicplayer.repository.MusicRepository;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     String[] titles = {"Song", "Album", "Artist"};
     private FragmentStateAdapter mPagerAdapter;
     private ViewPager2 mViewPager2;
-    public static ArrayList<MusicFiles> mMusicFiles;
+    public  ArrayList<MusicFiles> mMusicFiles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         findViews();
 
-        mMusicFiles=getAllAudio(this);
+        mMusicFiles= MusicRepository.getInstance(getApplicationContext()).getAllAudio();
 //        Toast.makeText(this, "size"+mMusicFiles.size(), Toast.LENGTH_SHORT).show();
 
         mPagerAdapter = new ViewPagerAdapter(this);
@@ -71,7 +72,8 @@ public class MainActivity extends AppCompatActivity {
                     , REQUEST_CODE);
         } else {
             Toast.makeText(this, "Permission Granted !", Toast.LENGTH_SHORT).show();
-            mMusicFiles=getAllAudio(this);
+            mMusicFiles= MusicRepository.getInstance(getApplicationContext()).getAllAudio();
+
         }
     }
 
@@ -82,7 +84,8 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //
                 Toast.makeText(this, "Permission Granted !", Toast.LENGTH_SHORT).show();
-                mMusicFiles=getAllAudio(this);
+                mMusicFiles= MusicRepository.getInstance(getApplicationContext()).getAllAudio();
+
 
             }
             else {
@@ -130,62 +133,34 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static ArrayList<MusicFiles> getAllAudio(Context context){
+//    public static ArrayList<MusicFiles> getAllAudio(Context context){
+//        ContentResolver contentResolver = context.getContentResolver();
 //        ArrayList<MusicFiles> tempAudioList = new ArrayList<>();
-//        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI ;
-//        String[] projection = {
-//                MediaStore.Audio.Media.ALBUM,
-//                MediaStore.Audio.Media.TITLE,
-//                MediaStore.Audio.Media.DURATION,
-//                MediaStore.Audio.Media.DATE_ADDED,
-//                MediaStore.Audio.Media.ARTIST,
-//        };
-//        Cursor cursor=context.getContentResolver().query(uri,projection,
-//                null,null,null);
-//        if(cursor!=null){
-//            while (cursor.moveToNext()){
-//                String album = cursor.getString(0);
-//                String title = cursor.getString(1);
-//                String duration = cursor.getString(2);
-//                String path = cursor.getString(3);
-//                String artist = cursor.getString(4);
-//                Log.e("path : " + path,"album : "+ album);
-////                Toast.makeText(context, "path" + path, Toast.LENGTH_SHORT).show();
-//                MusicFiles musicFiles = new MusicFiles(path  ,title,artist,album,duration);
-//                tempAudioList.add(musicFiles);
+//        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+//        Cursor cursor = contentResolver.query(uri, null, null, null, null);
+//
+//        if (cursor != null && cursor.getCount() > 0) {
+//            tempAudioList = new ArrayList<>();
+//            while (cursor.moveToNext()) {
+//
+//                String songId = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
+//                String data = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+//                String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
+//                String album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+//                String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+//                String albumId = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
+//                String artistId = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_ID));
+//                String path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
+//                Log.e("path : " + data,"album : "+ album);
+//
+//                tempAudioList.add(new MusicFiles(data, title, album, artist, songId, albumId, artistId,path));
 //            }
-//            cursor.close();
 //        }
+//        assert cursor != null;
+//        cursor.close();
 //        return tempAudioList;
-        ContentResolver contentResolver = context.getContentResolver();
-        ArrayList<MusicFiles> tempAudioList = new ArrayList<>();
-        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-//        String selection = MediaStore.Audio.Media.IS_MUSIC + "!= 0";
-//        String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
-        Cursor cursor = contentResolver.query(uri, null, null, null, null);
-
-        if (cursor != null && cursor.getCount() > 0) {
-            tempAudioList = new ArrayList<>();
-            while (cursor.moveToNext()) {
-
-                String songId = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
-                String data = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
-                String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
-                String album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-                String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-                String albumId = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
-                String artistId = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_ID));
-                String path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
-                Log.e("path : " + data,"album : "+ album);
-
-                tempAudioList.add(new MusicFiles(data, title, album, artist, songId, albumId, artistId,path));
-            }
-        }
-        assert cursor != null;
-        cursor.close();
-        return tempAudioList;
-
-    }
+//
+//    }
 
 
 }

@@ -28,6 +28,7 @@ import com.example.musicplayer.Utils.MusicUtils;
 import com.example.musicplayer.controller.activity.MainActivity;
 import com.example.musicplayer.controller.activity.PlayerActivity;
 import com.example.musicplayer.model.MusicFiles;
+import com.example.musicplayer.repository.MusicRepository;
 import com.example.musicplayer.repository.PlayerRepository;
 
 import java.util.List;
@@ -71,7 +72,8 @@ public class SongListFragment extends Fragment {
 
         setRetainInstance(true);
         mHandler = new Handler();
-        mMusicFilesList = MainActivity.mMusicFiles;
+        mMusicFilesList = MusicRepository.getInstance(getActivity().getApplicationContext()).getAllAudio();
+
 
 //        mMediaPlayer = new MediaPlayer();
 //        AudioAttributes audioAttributes = new AudioAttributes.Builder()
@@ -313,14 +315,16 @@ public class SongListFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PLAYER_ACTIVITY_REQUEST_CODE) {
-            mLinearLayoutPlayer.setVisibility(View.VISIBLE);
             mMediaPlayer = PlayerRepository.getInstance().getMediaPlayer();
-            if (mMediaPlayer.isPlaying())
-                mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
-            else
-                mBtnPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24);
-            mCurrentMusicPlayed = PlayerActivity.mCurrentMusicPlayed;
-            initFloatViews(mCurrentMusicPlayed);
+            if (mMediaPlayer.isPlaying()) {
+                mLinearLayoutPlayer.setVisibility(View.VISIBLE);
+                if (mMediaPlayer.isPlaying())
+                    mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
+                else
+                    mBtnPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+                mCurrentMusicPlayed = PlayerActivity.mCurrentMusicPlayed;
+                initFloatViews(mCurrentMusicPlayed);
+            }
         }
     }
 

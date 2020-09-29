@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import java.util.ArrayList;
 
 public class PlayerRepository {
+
     private static PlayerRepository sPlayerRepository;
     private static MediaPlayer mMediaPlayer;
     public static PlayerRepository getInstance() {
