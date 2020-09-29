@@ -12,7 +12,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_beat_box"
         android:layout_width="match_parent"
-        android:layout_height="541dp"
+        android:layout_height="match_parent"
         tools:context=".controller.fragment.BeatBoxFragment"
         tools:listitem="@layout/music_items"></androidx.recyclerview.widget.RecyclerView>
 

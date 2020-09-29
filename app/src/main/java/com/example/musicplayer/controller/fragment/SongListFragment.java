@@ -1,5 +1,6 @@
 package com.example.musicplayer.controller.fragment;
 
+import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.BitmapFactory;
 import android.media.AudioAttributes;
@@ -28,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.Utils.MusicUtils;
 import com.example.musicplayer.controller.activity.MainActivity;
+import com.example.musicplayer.controller.activity.PlayerActivity;
 import com.example.musicplayer.model.MusicFiles;
 
 import java.io.IOException;
@@ -260,14 +262,17 @@ public class SongListFragment extends Fragment {
                 @RequiresApi(api = Build.VERSION_CODES.N)
                 @Override
                 public void onClick(View v) {
-                    int i = mMusic.getData().indexOf('-');
-                    Toast.makeText(getActivity(), "path: " + mMusic.getData().substring(0,i)+"/"+mMusic.getTitle()+".mp3", Toast.LENGTH_LONG).show();
-                    mMediaPlayer.stop();
-                    mMediaPlayer = new MediaPlayer();
-                   MusicUtils.playAudio(mMediaPlayer,mMusic.getData());
-//                    mMediaPlayer.start();
-                    mButtonPlay.setText("pause");
-                    mCurrentMusicPlayed = mMusic;
+//                    int i = mMusic.getData().indexOf('-');
+//                    Toast.makeText(getActivity(), "path: " + mMusic.getData().substring(0,i)+"/"+mMusic.getTitle()+".mp3", Toast.LENGTH_LONG).show();
+//                    mMediaPlayer.stop();
+//                    mMediaPlayer = new MediaPlayer();
+//                   MusicUtils.playAudio(mMediaPlayer,mMusic.getData());
+////                    mMediaPlayer.start();
+//                    mButtonPlay.setText("pause");
+//                    mCurrentMusicPlayed = mMusic;
+
+                    Intent intent = PlayerActivity.newIntent(getActivity(),mMusicFiles.indexOf(mMusic));
+                    startActivity(intent);
 
                 }
             });
@@ -278,9 +283,6 @@ public class SongListFragment extends Fragment {
             mMusic = music;
             mTextViewTitle.setText(mMusic.getTitle());
 
-//            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-//            retriever.setDataSource(mMusic.getData());
-//            byte[] art = retriever.getEmbeddedPicture();
             byte[] art = getAlbumArt(mMusic.getData());
             if (art != null) {
                 mImageViewImageMusic.setImageBitmap(BitmapFactory.decodeByteArray(art, 0, art.length));
