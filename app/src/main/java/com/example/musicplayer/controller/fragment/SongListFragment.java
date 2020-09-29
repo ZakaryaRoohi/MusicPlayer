@@ -1,7 +1,6 @@
 package com.example.musicplayer.controller.fragment;
 
 import android.content.Intent;
-import android.content.res.AssetFileDescriptor;
 import android.graphics.BitmapFactory;
 import android.media.AudioAttributes;
 import android.media.MediaMetadataRetriever;
@@ -16,11 +15,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -32,25 +32,27 @@ import com.example.musicplayer.controller.activity.MainActivity;
 import com.example.musicplayer.controller.activity.PlayerActivity;
 import com.example.musicplayer.model.MusicFiles;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.List;
 
 public class SongListFragment extends Fragment {
-
+    public static final int PLAYER_ACTIVITY_REQUEST_CODE = 1;
     public static final int SPAN_COUNT = 3;
     public static final String TAG = "BBF";
-    private Button mButtonPlay;
-    private ImageButton mImageButtonNext, mImageButtonPrevious, mImageButtonSeekBackward, mImageButtonSeekForward;
+
     private SeekBar mSeekBar;
     private Runnable mRunnable;
     private Handler mHandler;
     private RecyclerView mRecyclerView;
 
     private MediaPlayer mMediaPlayer;
-
+    private LinearLayout mLinearLayoutPlayer;
     private List<MusicFiles> mMusicFiles;
     private MusicFiles mCurrentMusicPlayed;
+    private ImageView mBtnShuffle;
+    private ImageView mBtnPrev;
+    private ImageView mBtnPlayPause;
+    private ImageView mBtnNext;
+    private ImageView mBtnRepeat;
 
     public SongListFragment() {
         // Required empty public constructor
@@ -91,7 +93,7 @@ public class SongListFragment extends Fragment {
         findViews(view);
         setListeners();
         initViews();
-
+        mLinearLayoutPlayer.setVisibility(View.INVISIBLE);
         SongListFragment.this.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -128,12 +130,14 @@ public class SongListFragment extends Fragment {
 
     private void findViews(View view) {
         mRecyclerView = view.findViewById(R.id.recycler_view_beat_box);
-        mSeekBar = view.findViewById(R.id.music_seek_bar);
-        mImageButtonSeekForward = view.findViewById(R.id.button_seek_forward);
-        mButtonPlay = view.findViewById(R.id.button_pause);
-        mImageButtonSeekBackward = view.findViewById(R.id.button_seek_backward);
-        mImageButtonNext = view.findViewById(R.id.image_button_next);
-        mImageButtonPrevious = view.findViewById(R.id.image_button_previous);
+        mLinearLayoutPlayer = view.findViewById(R.id.layout2);
+
+        mBtnShuffle = view.findViewById(R.id.id_shuffle_float);
+        mBtnPrev = view.findViewById(R.id.id_prev_float);
+        mBtnPlayPause = view.findViewById(R.id.play_pause_float);
+        mBtnNext = view.findViewById(R.id.id_next_float);
+        mBtnRepeat = view.findViewById(R.id.id_repeat_float);
+        mSeekBar = view.findViewById(R.id.seek_bar_float);
 
     }
 
@@ -172,74 +176,7 @@ public class SongListFragment extends Fragment {
                 mMediaPlayer.seekTo((int) ((double) (mMediaPlayer.getDuration() * currentPosition) / 100));
             }
         });
-        mButtonPlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mMediaPlayer.isPlaying()) {
-                    mMediaPlayer.pause();
-                    mButtonPlay.setText("Play");
-                } else {
-                    mMediaPlayer.start();
-                    mButtonPlay.setText("pause");
-                }
-            }
-        });
-        mImageButtonSeekForward.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mMediaPlayer.seekTo(mMediaPlayer.getCurrentPosition() + 5000);
-            }
-        });
-        mImageButtonSeekBackward.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mMediaPlayer.seekTo(mMediaPlayer.getCurrentPosition() - 5000);
-            }
-        });
-        mImageButtonNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MusicFiles nextMusic;
-                if (mCurrentMusicPlayed != null) {
 
-
-                    int currentMusicIndex = mMusicFiles.indexOf(mCurrentMusicPlayed);
-                    if (currentMusicIndex == mMusicFiles.size() - 1)
-                        nextMusic = mMusicFiles.get(0);
-                    else
-                        nextMusic = mMusicFiles.get(currentMusicIndex + 1);
-
-                    mMediaPlayer.stop();
-//                    mMediaPlayer = new MediaPlayer();
-                    MusicUtils.playAudio(mMediaPlayer,nextMusic.getData());
-                    mCurrentMusicPlayed = nextMusic;
-//                    mMediaPlayer.start();
-                    mButtonPlay.setText("pause");
-                }
-            }
-        });
-        mImageButtonPrevious.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MusicFiles nextMusic;
-                if (mCurrentMusicPlayed != null) {
-
-
-                    int currentMusicIndex = mMusicFiles.indexOf(mCurrentMusicPlayed);
-                    if (currentMusicIndex == 0)
-                        nextMusic = mMusicFiles.get(mMusicFiles.size() - 1);
-                    else
-                        nextMusic = mMusicFiles.get(currentMusicIndex - 1);
-
-                    mMediaPlayer.stop();
-//                    mMediaPlayer = new MediaPlayer();
-                    MusicUtils.playAudio(mMediaPlayer,nextMusic.getData());
-//                    mMediaPlayer.start();
-                    mCurrentMusicPlayed = nextMusic;
-                    mButtonPlay.setText("pause");
-                }
-            }
-        });
     }
 
     private void initUI() {
@@ -271,8 +208,8 @@ public class SongListFragment extends Fragment {
 //                    mButtonPlay.setText("pause");
 //                    mCurrentMusicPlayed = mMusic;
 
-                    Intent intent = PlayerActivity.newIntent(getActivity(),mMusicFiles.indexOf(mMusic));
-                    startActivity(intent);
+                    Intent intent = PlayerActivity.newIntent(getActivity(), mMusicFiles.indexOf(mMusic));
+                    startActivityForResult(intent, PLAYER_ACTIVITY_REQUEST_CODE);
 
                 }
             });
@@ -291,13 +228,14 @@ public class SongListFragment extends Fragment {
             }
 
         }
-        private byte[] getAlbumArt(String data){
+
+        private byte[] getAlbumArt(String data) {
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
             retriever.setDataSource(data);
             byte[] art = retriever.getEmbeddedPicture();
             retriever.release();
             return art;
-            }
+        }
     }
 
     private class MusicAdapter extends RecyclerView.Adapter<MusicHolder> {
@@ -326,6 +264,14 @@ public class SongListFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mMusics.size();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==PLAYER_ACTIVITY_REQUEST_CODE){
+            mLinearLayoutPlayer.setVisibility(View.VISIBLE);
         }
     }
 }

@@ -10,6 +10,7 @@ import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -20,12 +21,15 @@ import com.example.musicplayer.R;
 import com.example.musicplayer.Utils.MusicUtils;
 import com.example.musicplayer.controller.fragment.SongListFragment;
 import com.example.musicplayer.model.MusicFiles;
+import com.example.musicplayer.repository.PlayerRepository;
 
+import java.io.Serializable;
 import java.util.List;
 
 public class PlayerActivity extends AppCompatActivity {
 
     public static final String EXTRA_POSITION = "com.example.musicplayer.controller.activity.extraPosition";
+    public static final String EXTRA_MEDIA_PLAYER = "extraMediaPlayer";
 
 
     private ImageView mBtnBack;
@@ -71,23 +75,23 @@ public class PlayerActivity extends AppCompatActivity {
         mHandler = new Handler();
         mMusicFilesList = MainActivity.mMusicFiles;
 
-            mMediaPlayer = new MediaPlayer();
-        AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .build();
-        mMediaPlayer.setAudioAttributes(audioAttributes);
-
+//        mMediaPlayer = new MediaPlayer();
+//        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+//                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+//                .setUsage(AudioAttributes.USAGE_MEDIA)
+//                .build();
+//        mMediaPlayer.setAudioAttributes(audioAttributes);
+        mMediaPlayer = PlayerRepository.getInstance().getMediaPlayer();
         mMediaPlayer.reset();
         mMediaPlayer.stop();
 //        mMediaPlayer = new MediaPlayer();
-        MusicUtils.playAudio(mMediaPlayer,mMusic.getData());
+        MusicUtils.playAudio(mMediaPlayer, mMusic.getData());
         mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
         mCurrentMusicPlayed = mMusic;
-initViews();
+        initViews(mMusic);
 
 
-       runOnUiThread(new Runnable() {
+        PlayerActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (mMediaPlayer != null) {
@@ -118,18 +122,19 @@ initViews();
     }
 
 
-private void initViews(){
-    byte[] art = getAlbumArt(mMusic.getData());
-    if (art != null) {
-        mSongCover.setImageBitmap(BitmapFactory.decodeByteArray(art, 0, art.length));
-    } else {
-        mSongCover.setImageResource(R.drawable.song_bytes_image);
-    }
-    mTextViewSongName.setText(mMusic.getTitle());
-    mTextViewSongArtist.setText(mMusic.getArtist());
+    private void initViews(MusicFiles music) {
+        byte[] art = getAlbumArt(music.getData());
+        if (art != null) {
+            mSongCover.setImageBitmap(BitmapFactory.decodeByteArray(art, 0, art.length));
+        } else {
+            mSongCover.setImageResource(R.drawable.song_bytes_image);
+        }
+        mTextViewSongName.setText(music.getTitle());
+        mTextViewSongArtist.setText(music.getArtist());
 
-}
-    private byte[] getAlbumArt(String data){
+    }
+
+    private byte[] getAlbumArt(String data) {
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(data);
         byte[] art = retriever.getEmbeddedPicture();
@@ -164,18 +169,13 @@ private void initViews(){
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 this.currentPosition = i;
-                if (b) {
-//                    mMediaPlayer.seekTo((i * mMediaPlayer.getDuration()) / 100);
-//                    (int) ((double) (mMediaPlayer.getDuration() * i) / 100);
-                }
-                Log.d("position", i + "");
+
+
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                Log.d("position2", "5655");
-//                seekBar.setProgress(mMediaPlayer.getCurrentPosition());
-//                mMediaPlayer.seekTo( (int) ((double) (mMediaPlayer.getDuration() * currentPosition) / 100));
+
                 mMediaPlayer.seekTo((int) ((double) (mMediaPlayer.getDuration() * currentPosition) / 100));
             }
         });
@@ -189,6 +189,52 @@ private void initViews(){
                     mMediaPlayer.start();
                     mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
 
+                }
+            }
+        });
+        mBtnNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MusicFiles nextMusic;
+                if (mCurrentMusicPlayed != null) {
+
+
+                    int currentMusicIndex = mMusicFilesList.indexOf(mCurrentMusicPlayed);
+                    if (currentMusicIndex == mMusicFilesList.size() - 1)
+                        nextMusic = mMusicFilesList.get(0);
+                    else
+                        nextMusic = mMusicFilesList.get(currentMusicIndex + 1);
+
+                    mMediaPlayer.stop();
+//                    mMediaPlayer = new MediaPlayer();
+                    MusicUtils.playAudio(mMediaPlayer, nextMusic.getData());
+                    mCurrentMusicPlayed = nextMusic;
+//                    mMediaPlayer.start();
+                    mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
+                    initViews(nextMusic);
+                }
+            }
+        });
+        mBtnPrev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MusicFiles prevMusic;
+                if (mCurrentMusicPlayed != null) {
+
+
+                    int currentMusicIndex = mMusicFilesList.indexOf(mCurrentMusicPlayed);
+                    if (currentMusicIndex == 0)
+                        prevMusic = mMusicFilesList.get(mMusicFilesList.size() - 1);
+                    else
+                        prevMusic = mMusicFilesList.get(currentMusicIndex - 1);
+
+                    mMediaPlayer.stop();
+//                    mMediaPlayer = new MediaPlayer();
+                    MusicUtils.playAudio(mMediaPlayer, prevMusic.getData());
+//                    mMediaPlayer.start();
+                    mCurrentMusicPlayed = prevMusic;
+                    mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
+                    initViews(prevMusic);
                 }
             }
         });

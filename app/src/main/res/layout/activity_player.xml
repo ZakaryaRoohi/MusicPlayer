@@ -41,6 +41,7 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
         android:layout_toEndOf="@+id/text_now_playing"
         android:src="@drawable/ic_baseline_menu_24" />
 
