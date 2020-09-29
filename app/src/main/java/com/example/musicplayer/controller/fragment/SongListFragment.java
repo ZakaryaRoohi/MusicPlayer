@@ -2,7 +2,6 @@ package com.example.musicplayer.controller.fragment;
 
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.media.AudioAttributes;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Build;
@@ -12,8 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -31,6 +28,7 @@ import com.example.musicplayer.Utils.MusicUtils;
 import com.example.musicplayer.controller.activity.MainActivity;
 import com.example.musicplayer.controller.activity.PlayerActivity;
 import com.example.musicplayer.model.MusicFiles;
+import com.example.musicplayer.repository.PlayerRepository;
 
 import java.util.List;
 
@@ -46,13 +44,14 @@ public class SongListFragment extends Fragment {
 
     private MediaPlayer mMediaPlayer;
     private LinearLayout mLinearLayoutPlayer;
-    private List<MusicFiles> mMusicFiles;
+    private List<MusicFiles> mMusicFilesList;
     private MusicFiles mCurrentMusicPlayed;
     private ImageView mBtnShuffle;
     private ImageView mBtnPrev;
     private ImageView mBtnPlayPause;
     private ImageView mBtnNext;
     private ImageView mBtnRepeat;
+    private TextView mTextViewSongName;
 
     public SongListFragment() {
         // Required empty public constructor
@@ -72,14 +71,14 @@ public class SongListFragment extends Fragment {
 
         setRetainInstance(true);
         mHandler = new Handler();
-        mMusicFiles = MainActivity.mMusicFiles;
+        mMusicFilesList = MainActivity.mMusicFiles;
 
-        mMediaPlayer = new MediaPlayer();
-        AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .build();
-        mMediaPlayer.setAudioAttributes(audioAttributes);
+//        mMediaPlayer = new MediaPlayer();
+//        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+//                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+//                .setUsage(AudioAttributes.USAGE_MEDIA)
+//                .build();
+//        mMediaPlayer.setAudioAttributes(audioAttributes);
     }
 
     @Override
@@ -105,25 +104,25 @@ public class SongListFragment extends Fragment {
             }
         });
 
-        mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-
-
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                SongListFragment.this.getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mMediaPlayer != null) {
-                            int mCurrentPosition = mMediaPlayer.getCurrentPosition();
-
-                            mSeekBar.setProgress((int) (((double) (mCurrentPosition) / mMediaPlayer.getDuration()) * 100));
-
-                        }
-                        mHandler.postDelayed(this, 1000);
-                    }
-                });
-            }
-        });
+//        mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//
+//
+//            @Override
+//            public void onPrepared(MediaPlayer mp) {
+//                SongListFragment.this.getActivity().runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        if (mMediaPlayer != null) {
+//                            int mCurrentPosition = mMediaPlayer.getCurrentPosition();
+//
+//                            mSeekBar.setProgress((int) (((double) (mCurrentPosition) / mMediaPlayer.getDuration()) * 100));
+//
+//                        }
+//                        mHandler.postDelayed(this, 1000);
+//                    }
+//                });
+//            }
+//        });
         return view;
     }
 
@@ -138,6 +137,7 @@ public class SongListFragment extends Fragment {
         mBtnNext = view.findViewById(R.id.id_next_float);
         mBtnRepeat = view.findViewById(R.id.id_repeat_float);
         mSeekBar = view.findViewById(R.id.seek_bar_float);
+        mTextViewSongName=view.findViewById(R.id.song_name_float);
 
     }
 
@@ -161,19 +161,68 @@ public class SongListFragment extends Fragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 this.currentPosition = i;
-                if (b) {
-//                    mMediaPlayer.seekTo((i * mMediaPlayer.getDuration()) / 100);
-//                    (int) ((double) (mMediaPlayer.getDuration() * i) / 100);
-                }
-                Log.d("position", i + "");
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                Log.d("position2", "5655");
-//                seekBar.setProgress(mMediaPlayer.getCurrentPosition());
-//                mMediaPlayer.seekTo( (int) ((double) (mMediaPlayer.getDuration() * currentPosition) / 100));
                 mMediaPlayer.seekTo((int) ((double) (mMediaPlayer.getDuration() * currentPosition) / 100));
+            }
+        });
+        mBtnPlayPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mMediaPlayer.isPlaying()) {
+                    mMediaPlayer.pause();
+                    mBtnPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+                } else {
+                    mMediaPlayer.start();
+                    mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
+
+                }
+            }
+        });
+        mBtnNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MusicFiles nextMusic;
+                if (mCurrentMusicPlayed != null) {
+
+
+                    int currentMusicIndex = mMusicFilesList.indexOf(mCurrentMusicPlayed);
+                    if (currentMusicIndex == mMusicFilesList.size() - 1)
+                        nextMusic = mMusicFilesList.get(0);
+                    else
+                        nextMusic = mMusicFilesList.get(currentMusicIndex + 1);
+
+                    mMediaPlayer.stop();
+                    MusicUtils.playAudio(mMediaPlayer, nextMusic.getData());
+                    mCurrentMusicPlayed = nextMusic;
+                    mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
+                    initFloatViews(nextMusic);
+
+                }
+            }
+        });
+        mBtnPrev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MusicFiles prevMusic;
+                if (mCurrentMusicPlayed != null) {
+
+
+                    int currentMusicIndex = mMusicFilesList.indexOf(mCurrentMusicPlayed);
+                    if (currentMusicIndex == 0)
+                        prevMusic = mMusicFilesList.get(mMusicFilesList.size() - 1);
+                    else
+                        prevMusic = mMusicFilesList.get(currentMusicIndex - 1);
+
+                    mMediaPlayer.stop();
+                    MusicUtils.playAudio(mMediaPlayer, prevMusic.getData());
+                    mCurrentMusicPlayed = prevMusic;
+                    mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
+                    initFloatViews(prevMusic);
+
+                }
             }
         });
 
@@ -181,7 +230,7 @@ public class SongListFragment extends Fragment {
 
     private void initUI() {
 
-        MusicAdapter adapter = new MusicAdapter(mMusicFiles);
+        MusicAdapter adapter = new MusicAdapter(mMusicFilesList);
         mRecyclerView.setAdapter(adapter);
     }
 
@@ -199,16 +248,9 @@ public class SongListFragment extends Fragment {
                 @RequiresApi(api = Build.VERSION_CODES.N)
                 @Override
                 public void onClick(View v) {
-//                    int i = mMusic.getData().indexOf('-');
-//                    Toast.makeText(getActivity(), "path: " + mMusic.getData().substring(0,i)+"/"+mMusic.getTitle()+".mp3", Toast.LENGTH_LONG).show();
-//                    mMediaPlayer.stop();
-//                    mMediaPlayer = new MediaPlayer();
-//                   MusicUtils.playAudio(mMediaPlayer,mMusic.getData());
-////                    mMediaPlayer.start();
-//                    mButtonPlay.setText("pause");
-//                    mCurrentMusicPlayed = mMusic;
 
-                    Intent intent = PlayerActivity.newIntent(getActivity(), mMusicFiles.indexOf(mMusic));
+
+                    Intent intent = PlayerActivity.newIntent(getActivity(), mMusicFilesList.indexOf(mMusic));
                     startActivityForResult(intent, PLAYER_ACTIVITY_REQUEST_CODE);
 
                 }
@@ -270,8 +312,21 @@ public class SongListFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==PLAYER_ACTIVITY_REQUEST_CODE){
+        if (requestCode == PLAYER_ACTIVITY_REQUEST_CODE) {
             mLinearLayoutPlayer.setVisibility(View.VISIBLE);
+            mMediaPlayer = PlayerRepository.getInstance().getMediaPlayer();
+            if (mMediaPlayer.isPlaying())
+                mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
+            else
+                mBtnPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+            mCurrentMusicPlayed = PlayerActivity.mCurrentMusicPlayed;
+            initFloatViews(mCurrentMusicPlayed);
         }
+    }
+
+    private void initFloatViews(MusicFiles music) {
+
+        mTextViewSongName.setText(music.getTitle());
+
     }
 }

@@ -44,7 +44,7 @@ public class PlayerActivity extends AppCompatActivity {
     private ImageView mBtnRepeat;
 
     private MusicFiles mMusic;
-    private MusicFiles mCurrentMusicPlayed;
+    public static MusicFiles mCurrentMusicPlayed;
 
     private int mPosition;
     private List<MusicFiles> mMusicFilesList;
@@ -206,10 +206,8 @@ public class PlayerActivity extends AppCompatActivity {
                         nextMusic = mMusicFilesList.get(currentMusicIndex + 1);
 
                     mMediaPlayer.stop();
-//                    mMediaPlayer = new MediaPlayer();
                     MusicUtils.playAudio(mMediaPlayer, nextMusic.getData());
                     mCurrentMusicPlayed = nextMusic;
-//                    mMediaPlayer.start();
                     mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
                     initViews(nextMusic);
                 }
@@ -239,4 +237,5 @@ public class PlayerActivity extends AppCompatActivity {
             }
         });
     }
+
 }
