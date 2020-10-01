@@ -220,17 +220,17 @@ public class AlbumListFragment extends Fragment {
 
     private void initUI() {
 
-        MusicAdapter adapter = new MusicAdapter(mAlbumsList);
+        AlbumAdapter adapter = new AlbumAdapter(mAlbumsList);
         mRecyclerView.setAdapter(adapter);
     }
 
-    private class MusicHolder extends RecyclerView.ViewHolder {
+    private class AlbumHolder extends RecyclerView.ViewHolder {
 
         private TextView mTextViewAlbumName;
 
         private ImageView mImageViewAlbumImage;
 
-        public MusicHolder(@NonNull View itemView) {
+        public AlbumHolder(@NonNull View itemView) {
             super(itemView);
             mTextViewAlbumName = itemView.findViewById(R.id.album_name);
             mImageViewAlbumImage = itemView.findViewById(R.id.album_img);
@@ -254,25 +254,25 @@ public class AlbumListFragment extends Fragment {
 
     }
 
-    private class MusicAdapter extends RecyclerView.Adapter<MusicHolder> {
+    private class AlbumAdapter extends RecyclerView.Adapter<AlbumHolder> {
 
         private List<String> mAlbums;
 
-        public MusicAdapter(List<String> albums) {
+        public AlbumAdapter(List<String> albums) {
             mAlbums = albums;
         }
 
         @NonNull
         @Override
-        public MusicHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public AlbumHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(getActivity())
                     .inflate(R.layout.album_items, parent, false);
 
-            return new MusicHolder(view);
+            return new AlbumHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(@NonNull MusicHolder holder, int position) {
+        public void onBindViewHolder(@NonNull AlbumHolder holder, int position) {
             String album = mAlbums.get(position);
             holder.bindMusic(album);
         }
@@ -299,6 +299,22 @@ public class AlbumListFragment extends Fragment {
 //            }
 //        }
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mMediaPlayer = PlayerRepository.getInstance().getMediaPlayer();
+            if (mMediaPlayer.isPlaying()) {
+                mLinearLayoutPlayer.setVisibility(View.VISIBLE);
+                if (mMediaPlayer.isPlaying())
+                    mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
+                else
+                    mBtnPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+                mCurrentMusicPlayed = PlayerRepository.getCurrentMusicPlayed();
+                initFloatViews(mCurrentMusicPlayed);
+            }
+        }
+
 
     private void initFloatViews(MusicFiles music) {
 

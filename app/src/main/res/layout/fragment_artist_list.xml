@@ -1,14 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-   >
-
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    android:background="@drawable/gradient_bg"
+    android:orientation="vertical"
+    >
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:id="@+id/layout1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-</FrameLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_artist"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context=".controller.fragment.BeatBoxFragment"
+                tools:listitem="@layout/artist_items"></androidx.recyclerview.widget.RecyclerView>
+
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout2"
+            android:layout_width="match_parent"
+            android:layout_height="157dp"
+            android:layout_gravity="bottom"
+            android:background="#555455"
+            android:gravity="bottom"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="this is song name"
+                android:id="@+id/song_name_float"
+                android:layout_below="@id/card"
+                android:textColor="#FBFBFB"
+                android:gravity="center_horizontal"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_marginStart="32dp"
+                android:layout_marginEnd="32dp"/>
+            <SeekBar
+                android:id="@+id/seek_bar_float"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:outlineAmbientShadowColor="#FAC5F4"
+                android:outlineSpotShadowColor="#FAC5F4"
+                android:layout_above="@id/buttons_layout"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp" />
+
+            <RelativeLayout
+                android:id="@+id/buttons_layout"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+
+                android:background="@drawable/gradient_bg">
+
+                <ImageView
+                    android:id="@+id/id_shuffle_float"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="32dp"
+                    android:src="@drawable/ic_baseline_shuffle_24" />
+
+                <ImageView
+                    android:id="@+id/id_prev_float"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:layout_toStartOf="@id/play_pause_float"
+                    android:src="@drawable/ic_baseline_skip_previous_24" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/play_pause_float"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@drawable/ic_baseline_play_arrow_24" />
+
+                <ImageView
+                    android:id="@+id/id_next_float"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="16dp"
+                    android:layout_toEndOf="@id/play_pause_float"
+                    android:src="@drawable/ic_baseline_skip_next_24" />
+
+                <ImageView
+                    android:id="@+id/id_repeat_float"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="32dp"
+                    android:layout_toStartOf="@id/play_pause_float"
+                    android:src="@drawable/ic_baseline_repeat_24" />
+
+
+            </RelativeLayout>
+
+        </LinearLayout>
+    </FrameLayout>
+
+</LinearLayout>
