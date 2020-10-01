@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.Utils.MusicUtils;
+import com.example.musicplayer.controller.activity.PlayerActivity;
 import com.example.musicplayer.model.MusicFiles;
 import com.example.musicplayer.repository.MusicRepository;
 import com.example.musicplayer.repository.PlayerRepository;
@@ -226,8 +227,9 @@ public class AlbumListFragment extends Fragment {
 
     private class AlbumHolder extends RecyclerView.ViewHolder {
 
+        SongListFragment mSongListFragment;
         private TextView mTextViewAlbumName;
-
+        private String mAlbum;
         private ImageView mImageViewAlbumImage;
 
         public AlbumHolder(@NonNull View itemView) {
@@ -239,6 +241,8 @@ public class AlbumListFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
 
+                    Intent intent = PlayerActivity.newIntentForAlbum(getActivity(),mAlbum);
+                    startActivityForResult(intent, PLAYER_ACTIVITY_REQUEST_CODE);
 
 
                 }
@@ -247,7 +251,7 @@ public class AlbumListFragment extends Fragment {
 //
 
         public void bindMusic(String album) {
-
+            mAlbum = album;
             mTextViewAlbumName.setText(album);
 
         }
@@ -304,16 +308,16 @@ public class AlbumListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mMediaPlayer = PlayerRepository.getInstance().getMediaPlayer();
-            if (mMediaPlayer.isPlaying()) {
-                mLinearLayoutPlayer.setVisibility(View.VISIBLE);
-                if (mMediaPlayer.isPlaying())
-                    mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
-                else
-                    mBtnPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24);
-                mCurrentMusicPlayed = PlayerRepository.getCurrentMusicPlayed();
-                initFloatViews(mCurrentMusicPlayed);
-            }
+        if (mMediaPlayer.isPlaying()) {
+            mLinearLayoutPlayer.setVisibility(View.VISIBLE);
+            if (mMediaPlayer.isPlaying())
+                mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
+            else
+                mBtnPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+            mCurrentMusicPlayed = PlayerRepository.getCurrentMusicPlayed();
+            initFloatViews(mCurrentMusicPlayed);
         }
+    }
 
 
     private void initFloatViews(MusicFiles music) {

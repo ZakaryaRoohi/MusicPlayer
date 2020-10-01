@@ -31,8 +31,10 @@ public class MusicRepository {
     }
 
     private MusicRepository() {
+
         ContentResolver contentResolver = mContext.getContentResolver();
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+
         Cursor cursor = contentResolver.query(uri, null, null, null, null);
 
         if (cursor != null && cursor.getCount() > 0) {
@@ -66,9 +68,37 @@ public class MusicRepository {
         mAlbums = new ArrayList<String>(mHashSetAlbums);
         return mAlbums;
     }
+
     public ArrayList<String> getAllArtists() {
         mArtists = new ArrayList<String>(mHashSetArtists);
         return mArtists;
     }
+
+    public ArrayList<MusicFiles> getAllAlbumAudio(String albumName) {
+
+        ArrayList<MusicFiles> musicFilesArrayList = new ArrayList<>();
+
+        for (MusicFiles music : musicFilesList) {
+            if (music.getAlbum().equals(albumName))
+                musicFilesArrayList.add(music);
+
+        }
+        return musicFilesArrayList;
+
+    }
+
+    public ArrayList<MusicFiles> getAllArtistAudio(String artistName) {
+
+        ArrayList<MusicFiles> musicFilesArrayList = new ArrayList<>();
+
+        for (MusicFiles music : musicFilesList) {
+            if (music.getArtist().equals(artistName))
+                musicFilesArrayList.add(music);
+
+        }
+        return musicFilesArrayList;
+
+    }
+
 
 }

@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,6 +37,8 @@ public class SongListFragment extends Fragment {
     public static final int PLAYER_ACTIVITY_REQUEST_CODE = 1;
     public static final int SPAN_COUNT = 3;
     public static final String TAG = "BBF";
+    public static final String ARG_ALBUM_NAME = "argAlbumName";
+    public static final String ARG_ARTIST_NAME = "argArtistName";
 
     private SeekBar mSeekBar;
     private Runnable mRunnable;
@@ -52,6 +55,8 @@ public class SongListFragment extends Fragment {
     private ImageView mBtnNext;
     private ImageView mBtnRepeat;
     private TextView mTextViewSongName;
+    private String mAlbumName;
+    private String mArtistName;
 
     public SongListFragment() {
         // Required empty public constructor
@@ -64,6 +69,22 @@ public class SongListFragment extends Fragment {
         return fragment;
     }
 
+    public static SongListFragment newInstanceForAlbum(String albumName) {
+        SongListFragment fragment = new SongListFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_ALBUM_NAME, albumName);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static SongListFragment newInstanceForArtist(String artistName) {
+        SongListFragment fragment = new SongListFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_ARTIST_NAME, artistName);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,15 +92,35 @@ public class SongListFragment extends Fragment {
 
         setRetainInstance(true);
         mHandler = new Handler();
-        mMusicFilesList = MusicRepository.getInstance(getActivity().getApplicationContext()).getAllAudio();
+        mAlbumName = getArguments().getString(ARG_ALBUM_NAME);
+        mArtistName = getArguments().getString(ARG_ARTIST_NAME);
+
+//        Toast.makeText(getActivity(), "artist" + mArtistName, Toast.LENGTH_SHORT).show();
+
+        if (mAlbumName != null)
+            mMusicFilesList = MusicRepository.getInstance(getActivity().getApplicationContext()).getAllAlbumAudio(mAlbumName);
+        else if (mArtistName != null)
+            mMusicFilesList = MusicRepository.getInstance(getActivity().getApplicationContext()).getAllArtistAudio(mArtistName);
+        else
+            mMusicFilesList = MusicRepository.getInstance(getActivity().getApplicationContext()).getAllAudio();
+
+mMediaPlayer= PlayerRepository.getInstance().getMediaPlayer();
 
 
-//        mMediaPlayer = new MediaPlayer();
-//        AudioAttributes audioAttributes = new AudioAttributes.Builder()
-//                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-//                .setUsage(AudioAttributes.USAGE_MEDIA)
-//                .build();
-//        mMediaPlayer.setAudioAttributes(audioAttributes);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mMediaPlayer.isPlaying()) {
+            mLinearLayoutPlayer.setVisibility(View.VISIBLE);
+            if (mMediaPlayer.isPlaying())
+                mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
+            else
+                mBtnPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+            mCurrentMusicPlayed = PlayerRepository.getCurrentMusicPlayed();
+            initFloatViews(mCurrentMusicPlayed);
+        }
     }
 
     @Override
@@ -113,14 +154,13 @@ public class SongListFragment extends Fragment {
     private void findViews(View view) {
         mRecyclerView = view.findViewById(R.id.recycler_view_beat_box);
         mLinearLayoutPlayer = view.findViewById(R.id.layout2);
-
         mBtnShuffle = view.findViewById(R.id.id_shuffle_float);
         mBtnPrev = view.findViewById(R.id.id_prev_float);
         mBtnPlayPause = view.findViewById(R.id.play_pause_float);
         mBtnNext = view.findViewById(R.id.id_next_float);
         mBtnRepeat = view.findViewById(R.id.id_repeat_float);
         mSeekBar = view.findViewById(R.id.seek_bar_float);
-        mTextViewSongName=view.findViewById(R.id.song_name_float);
+        mTextViewSongName = view.findViewById(R.id.song_name_float);
 
     }
 
@@ -211,14 +251,13 @@ public class SongListFragment extends Fragment {
         mBtnRepeat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!PlayerRepository.RepeatFlag){
+                if (!PlayerRepository.RepeatFlag) {
                     mBtnRepeat.setImageResource(R.drawable.ic_baseline_repeat_24_blue);
-                    PlayerRepository.RepeatFlag=true;
+                    PlayerRepository.RepeatFlag = true;
                     mMediaPlayer.setLooping(true);
-                }
-                else{
+                } else {
                     mBtnRepeat.setImageResource(R.drawable.ic_baseline_repeat_24);
-                    PlayerRepository.RepeatFlag=false;
+                    PlayerRepository.RepeatFlag = false;
                     mMediaPlayer.setLooping(false);
 
                 }
@@ -248,6 +287,7 @@ public class SongListFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
 
+                    MusicUtils.playAudio(mMediaPlayer, mMusic.getData());
 
                     Intent intent = PlayerActivity.newIntent(getActivity(), mMusicFilesList.indexOf(mMusic));
                     startActivityForResult(intent, PLAYER_ACTIVITY_REQUEST_CODE);
@@ -311,27 +351,26 @@ public class SongListFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-         if (requestCode == PLAYER_ACTIVITY_REQUEST_CODE) {
+        if (requestCode == PLAYER_ACTIVITY_REQUEST_CODE) {
             mMediaPlayer = PlayerRepository.getInstance().getMediaPlayer();
-            if (mMediaPlayer.isPlaying()) {
-                mLinearLayoutPlayer.setVisibility(View.VISIBLE);
-                if (mMediaPlayer.isPlaying())
-                    mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
-                else
-                    mBtnPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24);
-                mCurrentMusicPlayed = PlayerRepository.getCurrentMusicPlayed();
-                initFloatViews(mCurrentMusicPlayed);
-            }
+//            if (mMediaPlayer.isPlaying()) {
+//                mLinearLayoutPlayer.setVisibility(View.VISIBLE);
+//                if (mMediaPlayer.isPlaying())
+//                    mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
+//                else
+//                    mBtnPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+//                mCurrentMusicPlayed = PlayerRepository.getCurrentMusicPlayed();
+//                initFloatViews(mCurrentMusicPlayed);
+//            }
         }
     }
 
     private void initFloatViews(MusicFiles music) {
 
         mTextViewSongName.setText(music.getTitle());
-        if(!PlayerRepository.RepeatFlag){
+        if (!PlayerRepository.RepeatFlag) {
             mBtnRepeat.setImageResource(R.drawable.ic_baseline_repeat_24_blue);
-        }
-        else{
+        } else {
             mBtnRepeat.setImageResource(R.drawable.ic_baseline_repeat_24);
         }
 

@@ -10,6 +10,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:id="@+id/artist_img"
+        android:src="@drawable/ic_baseline_graphic_eq_24"
         android:padding="5dp"
         />
     <TextView

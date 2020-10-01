@@ -110,9 +110,9 @@ public class PlayerFragment extends Fragment {
 
 
 
-        mMediaPlayer.reset();
-        mMediaPlayer.stop();
-        MusicUtils.playAudio(mMediaPlayer, mMusic.getData());
+//        mMediaPlayer.reset();
+//        mMediaPlayer.stop();
+//        MusicUtils.playAudio(mMediaPlayer, mMusic.getData());
         mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
 
         mCurrentMusicPlayed = mMusic;

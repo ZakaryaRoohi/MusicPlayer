@@ -10,6 +10,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:id="@+id/album_img"
+        android:src="@drawable/song_bytes_image"
         android:padding="5dp"
         />
     <TextView

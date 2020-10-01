@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.Utils.MusicUtils;
+import com.example.musicplayer.controller.activity.PlayerActivity;
 import com.example.musicplayer.model.MusicFiles;
 import com.example.musicplayer.repository.MusicRepository;
 import com.example.musicplayer.repository.PlayerRepository;
@@ -232,13 +233,14 @@ public class ArtistListFragment extends Fragment {
     }
 
     private class ArtistHolder extends RecyclerView.ViewHolder {
-
+private String mArtist;
         private TextView mTextViewArtistName;
 
         private ImageView mImageViewAlbumImage;
 
         public ArtistHolder(@NonNull View itemView) {
             super(itemView);
+
             mTextViewArtistName = itemView.findViewById(R.id.artist_name);
             mImageViewAlbumImage = itemView.findViewById(R.id.artist_img);
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -246,6 +248,8 @@ public class ArtistListFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
 
+                    Intent intent = PlayerActivity.newIntentForArtist(getActivity(), mArtist);
+                    startActivityForResult(intent, PLAYER_ACTIVITY_REQUEST_CODE);
 
 
                 }
@@ -254,6 +258,7 @@ public class ArtistListFragment extends Fragment {
 //
 
         public void bindMusic(String artist) {
+            mArtist = artist;
             mTextViewArtistName.setText(artist);
 
         }

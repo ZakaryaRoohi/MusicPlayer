@@ -13,7 +13,7 @@ android:layout_marginTop="2dp"
         android:padding="5dp"
         />
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="230dp"
         android:layout_height="wrap_content"
         android:text="File Name"
         android:textStyle="bold"
@@ -24,4 +24,13 @@ android:layout_marginTop="2dp"
         android:textSize="20sp"
         android:id="@+id/music_file_name"
         />
+
+    <ImageView
+        android:id="@+id/item_equlizer"
+        android:layout_width="56dp"
+        android:layout_height="51dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/ic_baseline_equalizer_24"
+        android:padding="5dp" />
 </RelativeLayout>
