@@ -5,6 +5,7 @@ import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
@@ -34,6 +35,7 @@ public class PlayerFragment extends Fragment {
     public static final String EXTRA_MEDIA_PLAYER = "extraMediaPlayer";
     public static final String EXTRA_CURRENT_MUSIC_PLAYED = "extraCurrentMusicPlayed";
     public static final String BUNDLE_POSITION = "bundlePosition";
+    public static final String BUNDLE_SAVE_INSTANCE_POSITION = "bundleSaveInstance";
 
 
     private ImageView mBtnBack;
@@ -48,7 +50,7 @@ public class PlayerFragment extends Fragment {
     private ImageView mBtnRepeat;
 
     private MusicFiles mMusic;
-    public  MusicFiles mCurrentMusicPlayed;
+    public MusicFiles mCurrentMusicPlayed;
 
     private int mPosition;
     private List<MusicFiles> mMusicFilesList;
@@ -64,42 +66,50 @@ public class PlayerFragment extends Fragment {
     public static PlayerFragment newInstance(int position) {
         PlayerFragment fragment = new PlayerFragment();
         Bundle args = new Bundle();
-        args.putInt(BUNDLE_POSITION,position);
+        args.putInt(BUNDLE_POSITION, position);
         fragment.setArguments(args);
         return fragment;
     }
-
-
-
-
-
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setRetainInstance(true);
+        if (savedInstanceState != null)
+            mPosition = savedInstanceState.getInt(BUNDLE_SAVE_INSTANCE_POSITION);
+        else
+            mPosition = getArguments().getInt(BUNDLE_POSITION);
 
-        mPosition = getArguments().getInt(BUNDLE_POSITION);
         mMusicFilesList = MusicRepository.getInstance(getActivity().getApplicationContext()).getAllAudio();
 
         if (mPosition >= 0)
             mMusic = mMusicFilesList.get(mPosition);
 //        findViews();
+        mMediaPlayer = PlayerRepository.getInstance().getMediaPlayer();
+        mHandler = new Handler();
 
     }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(BUNDLE_SAVE_INSTANCE_POSITION, mPosition);
+
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view= inflater.inflate(R.layout.fragment_player, container, false);
+        View view = inflater.inflate(R.layout.fragment_player, container, false);
         findViews(view);
 
         setListeners();
 
 
-        mHandler = new Handler();
-        mMediaPlayer = PlayerRepository.getInstance().getMediaPlayer();
+
         mMediaPlayer.reset();
         mMediaPlayer.stop();
         MusicUtils.playAudio(mMediaPlayer, mMusic.getData());
@@ -122,7 +132,6 @@ public class PlayerFragment extends Fragment {
                 mHandler.postDelayed(this, 1000);
             }
         });
-
 
 
         return view;
@@ -177,7 +186,6 @@ public class PlayerFragment extends Fragment {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 this.currentPosition = i;
-
 
 
             }
@@ -253,24 +261,19 @@ public class PlayerFragment extends Fragment {
         mBtnRepeat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!PlayerRepository.RepeatFlag){
+                if (!PlayerRepository.RepeatFlag) {
                     mBtnRepeat.setImageResource(R.drawable.ic_baseline_repeat_24_blue);
-                    PlayerRepository.RepeatFlag=true;
+                    PlayerRepository.RepeatFlag = true;
                     mMediaPlayer.setLooping(true);
-                }
-                else{
+                } else {
                     mBtnRepeat.setImageResource(R.drawable.ic_baseline_repeat_24);
-                    PlayerRepository.RepeatFlag=false;
+                    PlayerRepository.RepeatFlag = false;
                     mMediaPlayer.setLooping(false);
 
                 }
             }
         });
     }
-
-
-
-
 
 
     @Override

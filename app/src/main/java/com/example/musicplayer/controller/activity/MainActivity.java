@@ -133,34 +133,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-//    public static ArrayList<MusicFiles> getAllAudio(Context context){
-//        ContentResolver contentResolver = context.getContentResolver();
-//        ArrayList<MusicFiles> tempAudioList = new ArrayList<>();
-//        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-//        Cursor cursor = contentResolver.query(uri, null, null, null, null);
-//
-//        if (cursor != null && cursor.getCount() > 0) {
-//            tempAudioList = new ArrayList<>();
-//            while (cursor.moveToNext()) {
-//
-//                String songId = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
-//                String data = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
-//                String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
-//                String album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
-//                String artist = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-//                String albumId = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
-//                String artistId = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST_ID));
-//                String path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
-//                Log.e("path : " + data,"album : "+ album);
-//
-//                tempAudioList.add(new MusicFiles(data, title, album, artist, songId, albumId, artistId,path));
-//            }
-//        }
-//        assert cursor != null;
-//        cursor.close();
-//        return tempAudioList;
-//
-//    }
 
 
 }
