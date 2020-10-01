@@ -1,36 +1,39 @@
-package com.example.musicplayer.controller.activity;
+package com.example.musicplayer.controller.fragment;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.media.AudioAttributes;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+
+import androidx.fragment.app.Fragment;
+
 import android.os.Handler;
-import android.os.Parcelable;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.Utils.MusicUtils;
-import com.example.musicplayer.controller.fragment.SongListFragment;
 import com.example.musicplayer.model.MusicFiles;
 import com.example.musicplayer.repository.MusicRepository;
 import com.example.musicplayer.repository.PlayerRepository;
 
-import java.io.Serializable;
 import java.util.List;
 
-public class PlayerActivity extends AppCompatActivity {
+/**
+ * A simple {@link Fragment} subclass.
+ * Use the {@link PlayerFragment#newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class PlayerFragment extends Fragment {
 
     public static final String EXTRA_POSITION = "com.example.musicplayer.controller.activity.extraPosition";
     public static final String EXTRA_MEDIA_PLAYER = "extraMediaPlayer";
+    public static final String EXTRA_CURRENT_MUSIC_PLAYED = "extraCurrentMusicPlayed";
+    public static final String BUNDLE_POSITION = "bundlePosition";
 
 
     private ImageView mBtnBack;
@@ -45,7 +48,7 @@ public class PlayerActivity extends AppCompatActivity {
     private ImageView mBtnRepeat;
 
     private MusicFiles mMusic;
-    public static MusicFiles mCurrentMusicPlayed;
+    public  MusicFiles mCurrentMusicPlayed;
 
     private int mPosition;
     private List<MusicFiles> mMusicFilesList;
@@ -53,74 +56,76 @@ public class PlayerActivity extends AppCompatActivity {
     private Handler mHandler;
     private static MediaPlayer mMediaPlayer;
 
-    public static Intent newIntent(Context context, int position) {
-        Intent playerIntent = new Intent(context, PlayerActivity.class);
-        playerIntent.putExtra(EXTRA_POSITION, position);
-        return playerIntent;
+    private PlayerFragment() {
+        // Required empty public constructor
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_player);
 
-        Intent intent = getIntent();
-        mPosition = intent.getIntExtra(EXTRA_POSITION, -1);
-        mMusicFilesList =MusicRepository.getInstance(getApplicationContext()).getAllAudio();
+    public static PlayerFragment newInstance(int position) {
+        PlayerFragment fragment = new PlayerFragment();
+        Bundle args = new Bundle();
+        args.putInt(BUNDLE_POSITION,position);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+
+
+
+
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+
+        mPosition = getArguments().getInt(BUNDLE_POSITION);
+        mMusicFilesList = MusicRepository.getInstance(getActivity().getApplicationContext()).getAllAudio();
 
         if (mPosition >= 0)
             mMusic = mMusicFilesList.get(mPosition);
-        findViews();
+//        findViews();
+
+    }
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view= inflater.inflate(R.layout.fragment_player, container, false);
+        findViews(view);
+
         setListeners();
 
 
         mHandler = new Handler();
-//        mMusicFilesList = MainActivity.mMusicFiles;
-
-//        mMediaPlayer = new MediaPlayer();
-//        AudioAttributes audioAttributes = new AudioAttributes.Builder()
-//                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-//                .setUsage(AudioAttributes.USAGE_MEDIA)
-//                .build();
-//        mMediaPlayer.setAudioAttributes(audioAttributes);
         mMediaPlayer = PlayerRepository.getInstance().getMediaPlayer();
         mMediaPlayer.reset();
         mMediaPlayer.stop();
-//        mMediaPlayer = new MediaPlayer();
         MusicUtils.playAudio(mMediaPlayer, mMusic.getData());
         mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
+
         mCurrentMusicPlayed = mMusic;
         initViews(mMusic);
 
 
-        PlayerActivity.this.runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (mMediaPlayer != null) {
                     int mCurrentPosition = mMediaPlayer.getCurrentPosition();
                     mSeekBar.setProgress((int) (((double) (mCurrentPosition) / mMediaPlayer.getDuration()) * 100));
                 }
+                if (!mMediaPlayer.isPlaying())
+                    mBtnPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+
                 mHandler.postDelayed(this, 1000);
             }
         });
 
-//        mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-//            @Override
-//            public void onPrepared(MediaPlayer mp) {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        if (mMediaPlayer != null) {
-//                            int mCurrentPosition = mMediaPlayer.getCurrentPosition();
-//
-//                            mSeekBar.setProgress((int) (((double) (mCurrentPosition) / mMediaPlayer.getDuration()) * 100));
-//
-//                        }
-//                        mHandler.postDelayed(this, 1000);
-//                    }
-//                });
-//            }
-//        });
+
+
+        return view;
     }
 
 
@@ -134,6 +139,7 @@ public class PlayerActivity extends AppCompatActivity {
         mTextViewSongName.setText(music.getTitle());
         mTextViewSongArtist.setText(music.getArtist());
 
+
     }
 
     private byte[] getAlbumArt(String data) {
@@ -144,18 +150,18 @@ public class PlayerActivity extends AppCompatActivity {
         return art;
     }
 
-    private void findViews() {
-        mBtnBack = findViewById(R.id.back_btn);
-        mBtnMenu = findViewById(R.id.menu_btn);
-        mSongCover = findViewById(R.id.song_cover);
-        mTextViewSongName = findViewById(R.id.song_name);
-        mTextViewSongArtist = findViewById(R.id.song_artist);
-        mBtnShuffle = findViewById(R.id.id_shuffle);
-        mBtnPrev = findViewById(R.id.id_prev);
-        mBtnPlayPause = findViewById(R.id.play_pause);
-        mBtnNext = findViewById(R.id.id_next);
-        mBtnRepeat = findViewById(R.id.id_repeat);
-        mSeekBar = findViewById(R.id.seek_bar);
+    private void findViews(View view) {
+        mBtnBack = view.findViewById(R.id.back_btn);
+        mBtnMenu = view.findViewById(R.id.menu_btn);
+        mSongCover = view.findViewById(R.id.song_cover);
+        mTextViewSongName = view.findViewById(R.id.song_name);
+        mTextViewSongArtist = view.findViewById(R.id.song_artist);
+        mBtnShuffle = view.findViewById(R.id.id_shuffle);
+        mBtnPrev = view.findViewById(R.id.id_prev);
+        mBtnPlayPause = view.findViewById(R.id.play_pause);
+        mBtnNext = view.findViewById(R.id.id_next);
+        mBtnRepeat = view.findViewById(R.id.id_repeat);
+        mSeekBar = view.findViewById(R.id.seek_bar);
 
     }
 
@@ -173,6 +179,7 @@ public class PlayerActivity extends AppCompatActivity {
                 this.currentPosition = i;
 
 
+
             }
 
             @Override
@@ -180,6 +187,7 @@ public class PlayerActivity extends AppCompatActivity {
 
                 mMediaPlayer.seekTo((int) ((double) (mMediaPlayer.getDuration() * currentPosition) / 100));
             }
+
         });
         mBtnPlayPause.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -239,9 +247,36 @@ public class PlayerActivity extends AppCompatActivity {
         mBtnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onBackPressed();
+                getActivity().onBackPressed();
+            }
+        });
+        mBtnRepeat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!PlayerRepository.RepeatFlag){
+                    mBtnRepeat.setImageResource(R.drawable.ic_baseline_repeat_24_blue);
+                    PlayerRepository.RepeatFlag=true;
+                    mMediaPlayer.setLooping(true);
+                }
+                else{
+                    mBtnRepeat.setImageResource(R.drawable.ic_baseline_repeat_24);
+                    PlayerRepository.RepeatFlag=false;
+                    mMediaPlayer.setLooping(false);
+
+                }
             }
         });
     }
 
+
+
+
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        PlayerRepository.setCurrentMusicPlayed(mCurrentMusicPlayed);
+
+    }
 }

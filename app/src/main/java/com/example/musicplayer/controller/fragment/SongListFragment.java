@@ -25,8 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.Utils.MusicUtils;
-import com.example.musicplayer.controller.activity.MainActivity;
-import com.example.musicplayer.controller.activity.PlayerActivity;
+import com.example.musicplayer.controller.activity.PlayerActivity2;
 import com.example.musicplayer.model.MusicFiles;
 import com.example.musicplayer.repository.MusicRepository;
 import com.example.musicplayer.repository.PlayerRepository;
@@ -102,29 +101,11 @@ public class SongListFragment extends Fragment {
                     int mCurrentPosition = mMediaPlayer.getCurrentPosition();
                     mSeekBar.setProgress((int) (((double) (mCurrentPosition) / mMediaPlayer.getDuration()) * 100));
                 }
+
                 mHandler.postDelayed(this, 1000);
             }
         });
 
-//        mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-//
-//
-//            @Override
-//            public void onPrepared(MediaPlayer mp) {
-//                SongListFragment.this.getActivity().runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        if (mMediaPlayer != null) {
-//                            int mCurrentPosition = mMediaPlayer.getCurrentPosition();
-//
-//                            mSeekBar.setProgress((int) (((double) (mCurrentPosition) / mMediaPlayer.getDuration()) * 100));
-//
-//                        }
-//                        mHandler.postDelayed(this, 1000);
-//                    }
-//                });
-//            }
-//        });
         return view;
     }
 
@@ -227,6 +208,22 @@ public class SongListFragment extends Fragment {
                 }
             }
         });
+        mBtnRepeat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!PlayerRepository.RepeatFlag){
+                    mBtnRepeat.setImageResource(R.drawable.ic_baseline_repeat_24_blue);
+                    PlayerRepository.RepeatFlag=true;
+                    mMediaPlayer.setLooping(true);
+                }
+                else{
+                    mBtnRepeat.setImageResource(R.drawable.ic_baseline_repeat_24);
+                    PlayerRepository.RepeatFlag=false;
+                    mMediaPlayer.setLooping(false);
+
+                }
+            }
+        });
 
     }
 
@@ -252,7 +249,7 @@ public class SongListFragment extends Fragment {
                 public void onClick(View v) {
 
 
-                    Intent intent = PlayerActivity.newIntent(getActivity(), mMusicFilesList.indexOf(mMusic));
+                    Intent intent = PlayerActivity2.newIntent(getActivity(), mMusicFilesList.indexOf(mMusic));
                     startActivityForResult(intent, PLAYER_ACTIVITY_REQUEST_CODE);
 
                 }
@@ -314,7 +311,7 @@ public class SongListFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PLAYER_ACTIVITY_REQUEST_CODE) {
+         if (requestCode == PLAYER_ACTIVITY_REQUEST_CODE) {
             mMediaPlayer = PlayerRepository.getInstance().getMediaPlayer();
             if (mMediaPlayer.isPlaying()) {
                 mLinearLayoutPlayer.setVisibility(View.VISIBLE);
@@ -322,7 +319,7 @@ public class SongListFragment extends Fragment {
                     mBtnPlayPause.setImageResource(R.drawable.ic_baseline_pause_24);
                 else
                     mBtnPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24);
-                mCurrentMusicPlayed = PlayerActivity.mCurrentMusicPlayed;
+                mCurrentMusicPlayed = PlayerRepository.getCurrentMusicPlayed();
                 initFloatViews(mCurrentMusicPlayed);
             }
         }
@@ -331,6 +328,12 @@ public class SongListFragment extends Fragment {
     private void initFloatViews(MusicFiles music) {
 
         mTextViewSongName.setText(music.getTitle());
+        if(!PlayerRepository.RepeatFlag){
+            mBtnRepeat.setImageResource(R.drawable.ic_baseline_repeat_24_blue);
+        }
+        else{
+            mBtnRepeat.setImageResource(R.drawable.ic_baseline_repeat_24);
+        }
 
     }
 }
